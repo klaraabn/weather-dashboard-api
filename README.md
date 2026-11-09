@@ -225,6 +225,16 @@ Response `204 No Content` (empty body).
 
 To check persistence, run "POST - save Paris", stop the server (Ctrl+C), run `npm run dev` again, then "GET - all cities". Paris is still there. You can also see it in Atlas → Browse Collections → `cities`.
 
+### Test results
+
+All 22 Postman tests pass (16 requests, run in order with **Run collection**):
+
+![Postman run](screenshots/Screenshot%202026-11-09%20144716.png)
+
+The saved cities in MongoDB Atlas (`weather-dashboard` → `cities`):
+
+![Atlas cities](screenshots/atlas-cities.png)
+
 ### curl
 
 ```bash
