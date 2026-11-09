@@ -1,0 +1,181 @@
+{
+  "info": {
+    "name": "Weather Dashboard API",
+    "description": "Every route of the saved cities API, with the success and error cases. Run the requests from top to bottom: \"Save Mansourieh\" stores the new id in the cityId variable used by the requests after it.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "cityId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "POST - save Mansourieh (201)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.test('has an _id', () => pm.expect(pm.response.json()._id).to.be.a('string'));",
+        "pm.collectionVariables.set('cityId', pm.response.json()._id);"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mansourieh\",\n  \"country\": \"Lebanon\",\n  \"latitude\": 33.866,\n  \"longitude\": 35.583,\n  \"unit\": \"C\",\n  \"note\": \"Home\"\n}" },
+        "url": "{{baseUrl}}/api/cities"
+      }
+    },
+    {
+      "name": "POST - save Paris (201)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Paris\",\n  \"country\": \"France\",\n  \"latitude\": 48.853,\n  \"longitude\": 2.349\n}" },
+        "url": "{{baseUrl}}/api/cities"
+      }
+    },
+    {
+      "name": "POST - missing fields (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+        "pm.test('has an error message', () => pm.expect(pm.response.json().error).to.be.a('string'));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"country\": \"Lebanon\",\n  \"latitude\": 120\n}" },
+        "url": "{{baseUrl}}/api/cities"
+      }
+    },
+    {
+      "name": "POST - wrong type (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Byblos\",\n  \"country\": \"Lebanon\",\n  \"latitude\": \"north\",\n  \"longitude\": 35.65\n}" },
+        "url": "{{baseUrl}}/api/cities"
+      }
+    },
+    {
+      "name": "POST - malformed JSON (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"name\": \"Beirut\", " },
+        "url": "{{baseUrl}}/api/cities"
+      }
+    },
+    {
+      "name": "GET - all cities (200)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+      ] } }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/cities" }
+    },
+    {
+      "name": "GET - search by name (200)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('only matching cities', () => pm.response.json().forEach(c => pm.expect(c.name.toLowerCase()).to.include('mans')));"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cities?search=mans",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cities"],
+          "query": [{ "key": "search", "value": "mans" }]
+        }
+      }
+    },
+    {
+      "name": "GET - one city (200)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('is Mansourieh', () => pm.expect(pm.response.json().name).to.eql('Mansourieh'));"
+      ] } }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/cities/{{cityId}}" }
+    },
+    {
+      "name": "GET - invalid id (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+      ] } }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/cities/123" }
+    },
+    {
+      "name": "GET - city not found (404)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+      ] } }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/cities/66f1c2e4b7a1d3f0c8e2a9b1" }
+    },
+    {
+      "name": "PUT - update Mansourieh (200)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('unit changed to F', () => pm.expect(pm.response.json().unit).to.eql('F'));"
+      ] } }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mansourieh\",\n  \"country\": \"Lebanon\",\n  \"latitude\": 33.866,\n  \"longitude\": 35.583,\n  \"unit\": \"F\",\n  \"note\": \"Home (Metn)\"\n}" },
+        "url": "{{baseUrl}}/api/cities/{{cityId}}"
+      }
+    },
+    {
+      "name": "PUT - bad data (400)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+      ] } }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mansourieh\",\n  \"country\": \"Lebanon\",\n  \"latitude\": 33.866,\n  \"longitude\": 35.583,\n  \"unit\": \"K\"\n}" },
+        "url": "{{baseUrl}}/api/cities/{{cityId}}"
+      }
+    },
+    {
+      "name": "PUT - city not found (404)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+      ] } }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tripoli\",\n  \"country\": \"Lebanon\",\n  \"latitude\": 34.437,\n  \"longitude\": 35.85\n}" },
+        "url": "{{baseUrl}}/api/cities/66f1c2e4b7a1d3f0c8e2a9b1"
+      }
+    },
+    {
+      "name": "DELETE - Mansourieh (204)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+      ] } }],
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/cities/{{cityId}}" }
+    },
+    {
+      "name": "DELETE - same city again (404)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+      ] } }],
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/cities/{{cityId}}" }
+    },
+    {
+      "name": "GET - unknown route (404)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+      ] } }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/weather" }
+    }
+  ]
+}
