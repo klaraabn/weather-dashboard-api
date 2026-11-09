@@ -261,27 +261,27 @@ curl -i -X DELETE http://localhost:3000/api/cities/<id>
 
 ## Methods from the slides, step by step
 
-### 1. Why a database (Session 18)
+### 1. Why a database 
 Before, a list kept in memory was lost every time the server restarted. With MongoDB the cities are on disk, so the data outlives the process that created it.
 
-### 2. SQL vs NoSQL: why MongoDB (Session 18)
+### 2. SQL vs NoSQL: why MongoDB 
 A saved city is a small, self-contained object with no joins, so a **collection of documents** fits it well. In MongoDB terms: cluster → database `weather-dashboard` → collection `cities` → one document per city.
 
-### 3. Secrets in `.env` (Session 18)
+### 3. Secrets in `.env` 
 - `import "dotenv/config"` is the **first line** of `server.js`, before anything reads `process.env`.
 - `MONGODB_URI` holds the password, so `.env` is in `.gitignore` and only `.env.example` is committed.
 - Every value arrives as a string, so the port is converted: `Number(process.env.PORT) || 3000`.
 
-### 4. A schema sets the rules, a model does the work (Session 18)
+### 4. A schema sets the rules, a model does the work 
 `models/City.js` declares the fields with `required`, `min`/`max`, `maxlength`, `enum` and `default`. These replace hand-written `if` checks. Each rule has its own message, and those messages are what the API sends back on a 400. The model `City` maps to the collection `cities`.
 
-### 5. Embed or reference (Session 18)
+### 5. Embed or reference 
 All of a city's data belongs to that city and is always read together, so nothing is referenced. Everything sits inside one document.
 
-### 6. Connect first, then listen (Session 18)
+### 6. Connect first, then listen
 `server.js` awaits `mongoose.connect()` inside `try`, then calls `app.listen()`. If the connection fails, it logs the reason and exits with `process.exit(1)` instead of running without a database.
 
-### 7. Every array call has a model call (Session 18)
+### 7. Every array call has a model call 
 | Job | Mongoose |
 |---|---|
 | Read all | `await City.find(filter).sort({ createdAt: -1 })` |
@@ -292,7 +292,7 @@ All of a city's data belongs to that city and is always read together, so nothin
 
 Every handler is `async` and `await`s the model call.
 
-### 8. Bad id, missing id, bad data (Session 18)
+### 8. Bad id, missing id, bad data 
 - **Bad id:** the `checkId` middleware uses `mongoose.isValidObjectId()` and returns `400` before touching the database.
 - **Missing:** the id is valid but the query returns `null`, so the route returns `404`.
 - **Bad data:** Mongoose throws a `ValidationError` (a rule failed) or a `CastError` (wrong type). Both become a `400` with a readable message.
